@@ -1,40 +1,41 @@
-const express = require('express')
-
+const express = require('express');
 const redis = require('redis')
-const app = express()
+
+const app = express();
 
 let publisher = redis.createClient({
     url: 'redis://localhost:6379'
-})
+});
 
-publisher.on('error', (err)=>console.log('Redia error'))
-publisher.on('connect', (err)=>console.log('Redis Connected'))
+publisher.on('error', (err) => console.log("Redis Error"));
+publisher.on('connect', (err) => console.log("Redis Connected"));
 
-
-const connect = async()=>{
+const connect = async () => {
     await publisher.connect()
 }
 
-connect()
+connect();
 
-app.get('/', (req, res)=>{
-   res.send({
-    msg: 'Publisher active fro port 3001'
-   }) 
-})
-app.get('/publish', async(req, res)=>{
-    const id = Math.floor(Math.random()*10)
+app.get('/', (req, res) => {
+    res.send({
+        message: "Publisher active from port 3001"
+    })
+});
+
+app.get('/publish', async (req, res) => {
+    const id = Math.floor(Math.random() * 10)
     const data = {
         id,
-        message: `Messaage - ${id}`
+        message: `message - ${id}`
     }
-
-    await publisher.publish('Message', JSON.stringify(data))
+    console.log("publish data: ", data);
+    await publisher.publish('message', JSON.stringify(data));
     res.send({
-        message: 'Data published'
+        message: "data published!",
+        data
     })
 })
 
-app.listen(3001, ()=>{
-    console.log('server run on 3001')
+app.listen(3001, () => {
+    console.log("Publisher server start on 3001")
 })
